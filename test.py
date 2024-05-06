@@ -1,6 +1,12 @@
 import logging
-from . import backend_anthropic, backend_openai, backend_corcel
-from .utils import FunctionSpec, OutputType, PromptType, compile_prompt_to_md
+from typing import cast
+from aide.backend import backend_anthropic, backend_openai, backend_corcel
+from aide.backend.utils import (
+    FunctionSpec,
+    OutputType,
+    PromptType,
+    compile_prompt_to_md,
+)
 
 
 logger = logging.getLogger("aide")
@@ -36,6 +42,7 @@ def query(
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
+    print(f"Querying model {model} with kwargs {model_kwargs}")
 
     query_func = (
         backend_corcel.query
@@ -44,10 +51,38 @@ def query(
     )
 
     output, req_time, in_tok_count, out_tok_count, info = query_func(
-        system_message=compile_prompt_to_md(system_message) if system_message else None,
+        system_message="You should determine if there were any bugs as well as report the empirical findings.",
         user_message=compile_prompt_to_md(user_message) if user_message else None,
         func_spec=func_spec,
         **model_kwargs,
     )
 
     return output
+
+
+if __name__ == "__main__":
+    prompt = {
+        "Introduction": (
+            "You are a Kaggle grandmaster attending a competition. "
+            "You have written code to solve this task and now need to evaluate the output of the code execution. "
+            "You should determine if there were any bugs as well as report the empirical findings."
+        ),
+        "Task description": "example_tasks/house_prices",
+        "Implementation": None,
+        "Execution output": None,
+    }
+
+    # Run the query function
+    responses = cast(
+        dict,
+        query(
+            system_message=prompt,
+            user_message=None,
+            func_spec=None,
+            model="cortext-ultra",
+            temperature=0.0001,
+            max_tokens=4096,
+        ),
+    )
+
+    print(responses)

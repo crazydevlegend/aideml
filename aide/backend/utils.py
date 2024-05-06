@@ -20,6 +20,8 @@ def opt_messages_to_list(
 
 
 def compile_prompt_to_md(prompt: PromptType, _header_depth: int = 1) -> str:
+    if prompt is None:
+        return ""
     if isinstance(prompt, str):
         return prompt.strip() + "\n"
     elif isinstance(prompt, list):

@@ -320,7 +320,6 @@ class Agent:
             ),
         )
 
-        # if the metric isn't a float then fill the metric with the worst metric
         if not isinstance(response["metric"], float):
             response["metric"] = None
 
